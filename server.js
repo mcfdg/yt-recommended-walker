@@ -30,7 +30,7 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 async function getData() {
   puppeteerBusy = true;
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
 
   await page.setDefaultTimeout(0);
