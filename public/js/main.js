@@ -19,8 +19,8 @@ let player_loaded = false;
 var player;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
-    width: 100+'%',
-    height: 100+'%',
+    width: 100 + "%",
+    height: 100 + "%",
     videoId: videoId,
     playerVars: {
       playsinline: 1,
@@ -58,8 +58,10 @@ function stopVideo() {
 socket.on("message", (message) => {
   console.log("new video");
   console.log(message);
-  videoId = message;
-  h1.innerHTML = message;
-  if (player_loaded) player.loadVideoById(message);
-  else console.log("player not yet loaded");
+  videoId = message.id;
+  h1.innerHTML = message.message;
+  if (player_loaded) {
+    player.loadVideoById(videoId);
+    console.log(message)
+  } else console.log("player not yet loaded");
 });

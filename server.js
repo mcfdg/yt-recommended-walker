@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-let video_id = "nAMjv0NAESM";
+let video_id = "bEETdGAVfD4";
 let puppeteerBusy = false;
 let crawlLength = 0;
 
@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
   console.log("New websocket connection...");
 
   // welcome current user
-  socket.emit("message", "ID: " +  video_id + ", Crawl length: " + crawlLength);
+  socket.emit("message", {id: video_id, message: "ID: " +  video_id + ", Crawl length: " + crawlLength});
 });
 
 const PORT = process.env.port || 5000;
@@ -39,7 +39,7 @@ async function crawlYoutube() {
 
   await page.setDefaultTimeout(0);
 
-  await page.goto("https://www.youtube.com/watch?v=nAMjv0NAESM");
+  await page.goto("https://www.youtube.com/watch?v=" + video_id);
 
   // setInterval(() => {
   //   page.screenshot({ path: "browser.png" });
@@ -68,7 +68,7 @@ async function crawlYoutube() {
 
     video_id = raw_href.substring(raw_href.indexOf("=") + 1);
 
-    io.emit("message", "ID: " +  video_id + ", Crawl length: " + crawlLength);
+    io.emit("message", {id: video_id, message: "ID: " +  video_id + ", Crawl length: " + crawlLength});
 
     console.log(video_id);
 
