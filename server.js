@@ -4,12 +4,13 @@ const socketio = require("socket.io");
 const puppeteer = require("puppeteer");
 
 const express = require("express");
+const { del } = require("express/lib/application");
 
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-let text = undefined;
+let video_id = "nAMjv0NAESM";
 let puppeteerBusy = false;
 
 // set static folder
@@ -21,37 +22,67 @@ io.on("connection", (socket) => {
   console.log("New websocket connection...");
 
   // welcome current user
-  socket.emit("message", text);
+  socket.emit("message", video_id);
 });
 
 const PORT = process.env.port || 5000;
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-async function getData() {
+async function crawlYoutube() {
   puppeteerBusy = true;
-  const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
   const page = await browser.newPage();
 
   await page.setDefaultTimeout(0);
 
-  await page.goto("https://randomwordgenerator.com/sentence.php");
+  await page.goto("https://www.youtube.com/watch?v=nAMjv0NAESM");
 
-  const elem = await page.waitForXPath("//*[@class='support-sentence']");
+  // setInterval(() => {
+  //   page.screenshot({ path: "browser.png" });
+  // }, 1000);
 
-  const textObj = await elem.getProperty("textContent");
-  text = await textObj.jsonValue();
-  console.log({ text });
+  let elem = await page.waitForXPath(
+    "//tp-yt-paper-button[@aria-label='Agree to the use of cookies and other data for the purposes described']"
+  );
 
-  browser.close();
+  await elem.click();
 
-  io.emit("message", text);
+  while (true) {
+    elem = await page.waitForXPath(
+      "//ytd-compact-video-renderer//yt-interaction[contains(@class, 'ytd-compact-video-renderer')]"
+    );
 
-  puppeteerBusy = false;
+    let elems_href = await page.$x("//ytd-compact-video-renderer//a");
+
+    let elem_href = elems_href[0];
+    let href = await elem_href.getProperty('href');
+    elem.click();
+
+    let raw_href = await href.jsonValue();
+
+    video_id = raw_href.substring(raw_href.indexOf('=') + 1)
+
+    io.emit("message", video_id)
+
+    console.log(video_id);
+
+    await delay(1000);
+
+    //stop playing new video
+    let elem_play_button = await page.waitForXPath("//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']");
+    elem_play_button.click();
+
+    await delay(10000);
+  }
 }
 
-getData();
+function delay(time) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
+}
 
-setInterval(() => {
-  if (!puppeteerBusy) getData();
-}, 10000);
+crawlYoutube();

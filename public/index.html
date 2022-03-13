@@ -18,13 +18,25 @@
         top: 50%; */
         text-align: center 
       }
+      .center {
+        margin: auto;
+        width: 50%;
+        padding: 10px;
+      }
     </style>
 
   </head>
   <body id="body">
+    
     <div>
     <h1 class="myText" id="myText">Welcome to my place!</h1>
     </div>
+
+    <div class="center">
+      <div id="player" style="text-align: center"></div>
+    </div>
+    
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="js/main.js"></script>
   </body>
