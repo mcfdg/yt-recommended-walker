@@ -6,7 +6,7 @@ h1.innerHTML = "success";
 
 var tag = document.createElement("script");
 
-let videoId = "M7lc1UVf-VE"
+let videoId = "M7lc1UVf-VE";
 
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName("script")[0];
@@ -19,8 +19,8 @@ let player_loaded = false;
 var player;
 function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
-    height: "390",
-    width: "640",
+    width: 100+'%',
+    height: 100+'%',
     videoId: videoId,
     playerVars: {
       playsinline: 1,
@@ -38,7 +38,7 @@ function onPlayerReady(event) {
   event.target.playVideo();
   player.loadVideoById(videoId);
   console.log("player is ready");
-  player_loaded=true;
+  player_loaded = true;
 }
 
 // 5. The API calls this function when the player's state changes.
@@ -56,11 +56,10 @@ function stopVideo() {
 }
 
 socket.on("message", (message) => {
-  console.log("new video")
-  console.log(message)
+  console.log("new video");
+  console.log(message);
   videoId = message;
   h1.innerHTML = message;
-  if (player_loaded)
-    player.loadVideoById(message);
-  else console.log("player not yet loaded")
+  if (player_loaded) player.loadVideoById(message);
+  else console.log("player not yet loaded");
 });

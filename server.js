@@ -12,6 +12,7 @@ const io = socketio(server);
 
 let video_id = "nAMjv0NAESM";
 let puppeteerBusy = false;
+let crawlLength = 0;
 
 // set static folder
 
@@ -22,7 +23,7 @@ io.on("connection", (socket) => {
   console.log("New websocket connection...");
 
   // welcome current user
-  socket.emit("message", video_id);
+  socket.emit("message", "ID: " +  video_id + ", Crawl length: " + crawlLength);
 });
 
 const PORT = process.env.port || 5000;
@@ -58,22 +59,32 @@ async function crawlYoutube() {
     let elems_href = await page.$x("//ytd-compact-video-renderer//a");
 
     let elem_href = elems_href[0];
-    let href = await elem_href.getProperty('href');
+    let href = await elem_href.getProperty("href");
     elem.click();
+
+    crawlLength++;
 
     let raw_href = await href.jsonValue();
 
-    video_id = raw_href.substring(raw_href.indexOf('=') + 1)
+    video_id = raw_href.substring(raw_href.indexOf("=") + 1);
 
-    io.emit("message", video_id)
+    io.emit("message", "ID: " +  video_id + ", Crawl length: " + crawlLength);
 
     console.log(video_id);
 
     await delay(1000);
 
     //stop playing new video
-    let elem_play_button = await page.waitForXPath("//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']");
-    elem_play_button.click();
+    let elem_play_button = await page.waitForXPath(
+      "//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']"
+    );
+
+    try {
+      elem_play_button.click();
+    } catch (error) {
+      page.screenshot({ path: "playButtonClickError.png" });
+      console.log(error);
+    }
 
     await delay(10000);
   }
