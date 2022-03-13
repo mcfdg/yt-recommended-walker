@@ -4,18 +4,15 @@ const h1 = document.getElementsByClassName("myText")[0];
 
 h1.innerHTML = "success";
 
-socket.on("message", (message) => {
-  console.log("new video")
-  console.log(message)
-  h1.innerHTML = message;
-  player.loadVideoById(message);
-});
-
 var tag = document.createElement("script");
+
+let videoId = "M7lc1UVf-VE"
 
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName("script")[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+let player_loaded = false;
 
 // 3. This function creates an <iframe> (and YouTube player)
 //    after the API code downloads.
@@ -24,7 +21,7 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player("player", {
     height: "390",
     width: "640",
-    videoId: "M7lc1UVf-VE",
+    videoId: videoId,
     playerVars: {
       playsinline: 1,
       autoplay: 1,
@@ -39,7 +36,9 @@ function onYouTubeIframeAPIReady() {
 // 4. The API will call this function when the video player is ready.
 function onPlayerReady(event) {
   event.target.playVideo();
-  console.log("player is ready and shouldp play video");
+  player.loadVideoById(videoId);
+  console.log("player is ready");
+  player_loaded=true;
 }
 
 // 5. The API calls this function when the player's state changes.
@@ -55,3 +54,13 @@ function onPlayerStateChange(event) {
 function stopVideo() {
   player.stopVideo();
 }
+
+socket.on("message", (message) => {
+  console.log("new video")
+  console.log(message)
+  videoId = message;
+  h1.innerHTML = message;
+  if (player_loaded)
+    player.loadVideoById(message);
+  else console.log("player not yet loaded")
+});
