@@ -56,9 +56,9 @@ async function crawlYoutube() {
   await page.goto("https://www.youtube.com/watch?v=" + videoId);
 
   // make a bunch of screenshots to see what the bot is doing
-  setInterval(() => {
-    page.screenshot({ path: "browser.png" });
-  }, 1000);
+  // setInterval(() => {
+  //   page.screenshot({ path: "browser.png" });
+  // }, 1000);
 
   // close cookies dialog
   let elem = await page.waitForXPath(
