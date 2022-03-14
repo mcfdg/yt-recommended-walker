@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-let seedVideoId = "u2vJp-0s8xQ"; // first video in crawl path
+let seedVideoId = "6Vshwx7reLk"; // first video in crawl path
 let videoId = seedVideoId;
 let crawlLength = 0;
 
@@ -52,22 +52,22 @@ async function crawlYoutube() {
   const page = await browser.newPage();
   page.setDefaultTimeout(30000);
 
-  // go to video id of seed video
-  await page.goto("https://www.youtube.com/watch?v=" + videoId);
+  try {
+    // go to video id of seed video
+    await page.goto("https://www.youtube.com/watch?v=" + videoId);
 
-  // make a bunch of screenshots to see what the bot is doing
-  // setInterval(() => {
-  //   page.screenshot({ path: "browser.png" });
-  // }, 1000);
+    // make a bunch of screenshots to see what the bot is doing
+    // setInterval(() => {
+    //   page.screenshot({ path: "browser.png" });
+    // }, 1000);
 
-  // close cookies dialog
-  let elem = await page.waitForXPath(
-    "//*[@aria-label='Agree to the use of cookies and other data for the purposes described']"
-  );
-  await elem.click();
+    // close cookies dialog
+    let elem = await page.waitForXPath(
+      "//*[@aria-label='Agree to the use of cookies and other data for the purposes described']"
+    );
+    await elem.click();
 
-  while (true) {
-    try {
+    while (true) {
       // get first next video
       elem = await page.waitForXPath(
         "//ytd-compact-video-renderer//yt-interaction[contains(@class, 'ytd-compact-video-renderer')]"
@@ -121,26 +121,24 @@ async function crawlYoutube() {
 
       await delay(1000);
 
-      // stop playing new video
-      let elem_play_button = await page.waitForXPath(
-        "//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']"
-      );
-      elem_play_button.click();
-
-      // show video for 10 seconds
       if (!canSkipVideo) {
+        // stop playing new video
+        let elem_play_button = await page.waitForXPath(
+          "//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']"
+        );
+        elem_play_button.click();
+
+        // show video for 10 seconds
         await delay(10000);
       }
-    } catch (error) {
-      page.screenshot({ path: "puppeteerError.png" });
-      console.log(
-        "error encountered while crawling YouTube, restarting browser"
-      );
-
-      // restart whole crawl process
-      crawlYoutube();
-      return;
     }
+  } catch (error) {
+    page.screenshot({ path: "puppeteerError.png" });
+    console.log("error encountered while crawling YouTube, restarting browser");
+
+    // restart whole crawl process
+    crawlYoutube();
+    return;
   }
 }
 
