@@ -50,7 +50,7 @@ async function crawlYoutube() {
     },
   });
   const page = await browser.newPage();
-  page.setDefaultTimeout(10000);
+  page.setDefaultTimeout(30000);
 
   // go to video id of seed video
   await page.goto("https://www.youtube.com/watch?v=" + videoId);
