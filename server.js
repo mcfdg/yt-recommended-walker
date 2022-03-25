@@ -49,29 +49,36 @@ async function crawlYoutube() {
       height: 1080,
     },
   });
+  console.log("Test: Opened browser");
   const page = await browser.newPage();
+  console.log("Test: Opened new page");
   page.setDefaultTimeout(30000);
+
+  // make a bunch of screenshots to see what the bot is doing
+  screenshotInterval = setInterval(() => {
+    page.screenshot({ path: "browser.png" });
+  }, 5000);
 
   try {
     // go to video id of seed video
     await page.goto("https://www.youtube.com/watch?v=" + videoId);
-
-    // make a bunch of screenshots to see what the bot is doing
-    // setInterval(() => {
-    //   page.screenshot({ path: "browser.png" });
-    // }, 1000);
+    console.log(
+      "Test: Went to " + "https://www.youtube.com/watch?v=" + videoId
+    );
 
     // close cookies dialog
     let elem = await page.waitForXPath(
       "//*[@aria-label='Agree to the use of cookies and other data for the purposes described']"
     );
     await elem.click();
+    console.log("Test: Clicked on accept cookies");
 
     while (true) {
       // get first next video
       elem = await page.waitForXPath(
         "//ytd-compact-video-renderer//yt-interaction[contains(@class, 'ytd-compact-video-renderer')]"
       );
+      console.log("Test: Got first recommended video element");
 
       // get video id of next video
       let elems_href = await page.$x("//ytd-compact-video-renderer//a");
@@ -80,6 +87,7 @@ async function crawlYoutube() {
       let raw_href = await href.jsonValue();
       let current_videoId = raw_href.substring(raw_href.indexOf("=") + 1);
       videoId = current_videoId;
+      console.log("Test: Got video id");
 
       // check if video is embeddable
       canSkipVideo = false;
@@ -93,6 +101,7 @@ async function crawlYoutube() {
       Http.onreadystatechange = (e) => {
         if (Http.readyState == 4 && Http.status == 200) {
           if (Http.response != null) {
+            console.log("Test: Got response from Youtube API for video " + current_videoId);
             if (!Http.response.items[0].status.embeddable) {
               canSkipVideo = true;
               console.log(
@@ -103,9 +112,11 @@ async function crawlYoutube() {
           }
         }
       };
+      console.log("Test: Set YouTube API request");
 
       // go to next video
       elem.click();
+      console.log("Test: Clicked on next video");
 
       crawlLength++;
 
@@ -114,6 +125,8 @@ async function crawlYoutube() {
         id: videoId,
         message: "ID: " + videoId + ", Crawl length: " + crawlLength,
       });
+      console.log("Test: Sent message to clients");
+
 
       console.log(videoId);
 
@@ -127,15 +140,18 @@ async function crawlYoutube() {
           "//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']"
         );
         elem_play_button.click();
+        console.log("Test: Paused video and waiting");
 
         // show video for 10 seconds
         await delay(10000);
       }
+      console.log("Test: Skipped video");
     }
   } catch (error) {
-    page.screenshot({ path: "puppeteerError.png" });
     console.log("error encountered while crawling YouTube, restarting browser");
-
+    page.screenshot({ path: "puppeteerError.png" });
+    // stop trying to make screenshots of dead page
+    clearInterval(screenshotInterval);
     // restart whole crawl process
     crawlYoutube();
     return;
