@@ -152,6 +152,7 @@ async function crawlYoutube() {
     page.screenshot({ path: "puppeteerError.png" });
     // stop trying to make screenshots of dead page
     clearInterval(screenshotInterval);
+    await browser.close();
     // restart whole crawl process
     crawlYoutube();
     return;
