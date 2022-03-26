@@ -112,7 +112,7 @@ async function crawlYoutube() {
           }
         }
       };
-      console.log("Test: Set YouTube API request");
+      console.log("Test: Sent YouTube API request");
 
       // go to next video
       elem.click();
@@ -127,11 +127,9 @@ async function crawlYoutube() {
       });
       console.log("Test: Sent message to clients");
 
-
       console.log(videoId);
 
       // wait for play button to appear
-
       await delay(1000);
 
       if (!canSkipVideo) {
@@ -148,7 +146,7 @@ async function crawlYoutube() {
       console.log("Test: Skipped video");
     }
   } catch (error) {
-    console.log("error encountered while crawling YouTube, restarting browser");
+    console.log("Error encountered while crawling YouTube, restarting browser");
     page.screenshot({ path: "puppeteerError.png" });
     // stop trying to make screenshots of dead page
     clearInterval(screenshotInterval);
