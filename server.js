@@ -9,7 +9,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
 
-let seedVideoId = "6Vshwx7reLk"; // first video in crawl path
+let seedVideoId = "Nu2Xo0Sgd24"; // first video in crawl path
 let videoId = seedVideoId;
 let crawlLength = 0;
 
@@ -115,7 +115,7 @@ async function crawlYoutube() {
       console.log("Test: Sent YouTube API request");
 
       // go to next video
-      elem.click();
+      await elem.click();
       console.log("Test: Clicked on next video");
 
       crawlLength++;
@@ -137,7 +137,7 @@ async function crawlYoutube() {
         let elem_play_button = await page.waitForXPath(
           "//ytd-watch-flexy//button[@class='ytp-play-button ytp-button']"
         );
-        elem_play_button.click();
+        await elem_play_button.click();
         console.log("Test: Paused video and waiting");
 
         // show video for 10 seconds
